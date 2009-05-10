@@ -1,0 +1,15 @@
+--- #YAML:1.0
+name:                Geo-Cloudmade
+version:             0.1
+abstract:            An extended interface to Cloudmade's Geo API
+license:             ~
+author:              
+    - Dmytro Gorbunov <dmitro.gorbunov@gmail.com>
+generated_by:        ExtUtils::MakeMaker version 6.44
+distribution_type:   module
+requires:     
+    JSON:                          2
+    LWP:                           5
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
