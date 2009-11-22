@@ -1,8 +1,7 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-use vars qw ($VERSION);
-$VERSION = '0.1';
+our $VERSION = '0.2';
 
 =head1 NAME
 
@@ -10,7 +9,7 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API
 
 =head1 DESCRIPTION
   
-  Cloudmade is a provider of FREE map of the world (L<http://cloudmade.com>).
+  Cloudmade is a provider of FREE map of the world (http://cloudmade.com).
   This module implements an OO wrapper around Cloudmade's Geo API.
   For now the following features were implemented:
    - geocoding and geosearching
@@ -39,8 +38,14 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API
 
   # finding closest poi 
   # for list all available objects please look at http://developers.cloudmade.com/projects/show/geocoding-http-api
-  @arr = $geo->find_closest('library', [59.12, 81.1], {return_geometry=>'True'});
+  @arr = $geo->find_closest('library', [59.12, 81.1]);
   print "No closest variants\n" unless @arr;
+
+  # reverse geocoding
+  my ($reverse)  = $geo->find_closest('address', [52.4870,13.4248]);
+  if (defined $reverse) {
+    print join ' ', $reverse->properties('addr:housenumber', 'addr:street', 'addr:postcode', 'addr:city'), "\n";
+  } else { print "No results, sorry\n" }
 
   #calculate route
   my $route = $geo->get_route([47.25976, 9.58423], [47.66117, 9.99882], { type=>'car', method=>'shortest' } );
@@ -76,7 +81,7 @@ use constant DEBUG => 0;
  Usage		:   my $geo = Geo::Cloudmade->new('your-ip-key');
  Function       :   Constructs and returns a new Geo::Cloudmade object
  Returns        :   a Geo::Cloudmade object
- API-KEY        :   api key provided by Cloudmade. For request api key please visit L<http://developers.cloudmade.com/projects>
+ API-KEY        :   api key provided by Cloudmade. For request api key please visit http://developers.cloudmade.com/projects>
 
 =cut
 sub new {
@@ -119,13 +124,14 @@ sub call_service {
  QUERY	 :    Query in format POI, House Number, Street, City, County like "Potsdamer Platz, Berlin, Germany".
               Also near is supported in queries, e.g. "hotel near Potsdamer Platz, Berlin, Germany"
  PARAMS  :   Hash for control ouptut. Valid elements are bbox, results, skip, bbox_only, return_geometry, return_location
-             For more info about parameters please look at L<http://developers.cloudmade.com/wiki/geocoding-http-api/Documentation>
+             For more info about parameters please look at http://developers.cloudmade.com/wiki/geocoding-http-api/Documentation
 
 =cut
+
 sub find {
   my ($self, $name, $opt) = @_;
-  my %params = ( skip=>0, bbox=>'None', bbox_only=>'True', return_geometry => 'True', return_location=>'False', %$opt );
-  my $content =  $self->call_service("geocoding/find/$name.js", [%params], 'geocoding');
+  my %params = ( query=>$name, return_geometry => 'true', %$opt );
+  my $content =  $self->call_service("geocoding/v2/find.js", [%params], 'geocoding');
 
   return unless $content;
   my $ref = from_json($content, {utf8 => 1});
@@ -137,17 +143,23 @@ sub find {
 
 =head2 find_closest OBJECT POINT PARAMS 
 
-  Usage: @arr = $geo->find_closest('library', [59.12, 81.1], {return_geometry=>'True'});
-  Function: Find closest (only one or zero!) object.
-  Returns array of Geo::Cloudmade::Result objects like find method, but size of array can be only 1 or zero.
-  OBJECT - point of interest, list of supported objects located at L<http://developers.cloudmade.com/projects/show/geocoding-http-api>
+  Usage: @arr = $geo->find_closest('library', [59.12, 81.1]);
+  Function: Find closest object(s).
+  Returns array of Geo::Cloudmade::Result objects like find method
+  OBJECT - point of interest, list of supported objects located at http://developers.cloudmade.com/projects/show/geocoding-http-api
   POINT  - reference of array of [$lattitude, $longtitude]
   PARAMS - optional parameters like return_geometry and return_location
 =cut
+
 sub find_closest {
-  my ($self, $objName, $point, $opt) = @_;
-  my %params = ( return_geometry => 'True', return_location=>'False', %$opt );
-  my $content =  $self->call_service("geocoding/closest/$objName/".$point->[0].','.$point->[1].".js", [%params], 'geocoding');
+  my ($self, $objType, $point, $opt) = @_;
+  $opt = {} unless defined $opt;
+  my %params = ( return_geometry => 'true', return_location=>'true', 
+                 around => $point->[0].','.$point->[1], 
+                 object_type => $objType,
+                 distance => 'closest',
+                 %$opt );
+  my $content =  $self->call_service("geocoding/v2/find.js", [%params], 'geocoding');
 
   return unless $content;
   my $ref = from_json($content, {utf8 => 1});
@@ -162,7 +174,9 @@ sub find_closest {
   Usage:   my $route = $geo->get_route([47.25976, 9.58423], [47.66117, 9.99882],
            { type=>'car', method=>'shortest' } );
   Function: Calculates route from START to END and returns Geo::Cloudmade::Route object
+
 =cut
+
 sub get_route {
   my ($self, $start, $end, $opt) = @_;
   my %params = ( type => 'car', method=>'shortest', lang=>'en', units=>'km', %$opt );
@@ -179,7 +193,9 @@ sub get_route {
   CENTER  array reference to latitude and longtitude
   PARAMS  optional parameters. Allowed parameters are zoom, stile, size
           For more info please look at official documentation from Cloudmade
+
 =cut
+
 sub get_tile {
   my ($self, $center, $opt) = @_;
   my %params = ( zoom=>10, style=>1, size=>256, %$opt );
@@ -213,6 +229,10 @@ package Geo::Cloudmade::Result;
 sub name {
   $_[0]->{properties}{name}
 }
+sub properties {
+  my ($this, @names) = @_;
+  @{$this->{properties}}{@names};
+}
 sub centroid {
   bless $_[0]->{centroid}{coordinates}, 'Geo::Cloudmade::Point'
 }
@@ -230,9 +250,9 @@ sub long {
 
  Official documentation about services from Cloudmade http://developers.cloudmade.com/projects
  You can find more specific info about:
-   - geocoding and geosearching in L<http://developers.cloudmade.com/projects/show/geocoding-http-api>
-   - routing in L<http://developers.cloudmade.com/projects/show/routing-http-api>
-   - obtaining tiles in L<http://developers.cloudmade.com/projects/tiles/documents>
+   - geocoding and geosearching in http://developers.cloudmade.com/projects/show/geocoding-http-api
+   - routing in http://developers.cloudmade.com/projects/show/routing-http-api
+   - obtaining tiles in http://developers.cloudmade.com/projects/tiles/documents
 
 =head1 AUTHOR
 

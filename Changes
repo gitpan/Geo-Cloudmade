@@ -2,3 +2,7 @@ Revision history for Perl extension Geo::Cloudmade.
 
 0.01  2009-05-06
 	- first release
+0.02  2009-11-22
+	- new geocoding api from cloudmade (v2)
+	- support for reverse geocoding and routes
+	- some tests has been added
