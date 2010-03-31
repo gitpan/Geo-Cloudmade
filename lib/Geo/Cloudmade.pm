@@ -1,7 +1,7 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =head1 NAME
 
