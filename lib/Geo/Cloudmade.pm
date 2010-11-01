@@ -1,11 +1,11 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 =head1 NAME
 
-Geo::Cloudmade - An extended interface to Cloudmade's Geo API
+Geo::Cloudmade - An extended interface to Cloudmade's Geo API (geocoding, routing, drawing tiles)
 
 =head1 DESCRIPTION
   
@@ -36,7 +36,7 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API
     print $_->name,":\n", $_->centroid->lat, "/", $_->centroid->long, "\n"
   }
 
-  # finding closest poi 
+  # finding closest POI (Point of Interest)
   # for list all available objects please look at http://developers.cloudmade.com/projects/show/geocoding-http-api
   @arr = $geo->find_closest('library', [59.12, 81.1]);
   print "No closest variants\n" unless @arr;
@@ -261,7 +261,7 @@ Dmytro Gorbunov, E<lt>dmitro.gorbunov@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2009 by Dmytro Gorbunov
+Copyright (C) 2010 by Dmytro Gorbunov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.9 or,
