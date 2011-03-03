@@ -20,4 +20,4 @@ $str =~ s/(\.\d{3})\d*/$1/g; # don't compare with more than 3 digits after '.'
 ok ($str eq 'Potsdamer Platz: 52.509/13.376');
 
 my ($reverse)  = $geo->find_closest('address', [52.4870,13.4248]);
-ok (join (' ', $reverse->properties('addr:housenumber', 'addr:street', 'addr:postcode', 'addr:city')) eq '9 Hermannplatz 10967 Berlin');
+ok (join (' ', $reverse->properties('addr:housenumber', 'addr:street', 'addr:city')) eq '9 Hermannplatz Berlin');

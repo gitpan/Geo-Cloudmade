@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Geo-Cloudmade
-version:            0.4
+version:            0.5
 abstract:           An extended interface to Cloudmade's Geo API (geocoding, routing, drawing tiles)
 author:
     - Dmytro Gorbunov <dmitro.gorbunov@gmail.com>

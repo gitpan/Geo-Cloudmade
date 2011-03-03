@@ -11,3 +11,5 @@ Revision history for Perl extension Geo::Cloudmade.
 0.04  2010-11-01
    - small changes in tests
    - small changes in documentations
+0.05  2011-03-03
+   - part of tests was simplified in order to avoid false alarm due to changed geodata
