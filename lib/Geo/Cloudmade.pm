@@ -1,7 +1,7 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 =head1 NAME
 
@@ -9,15 +9,18 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API (geocoding, routin
 
 =head1 DESCRIPTION
   
-  Cloudmade is a provider of FREE map of the world (http://cloudmade.com).
+  L<Cloudmade|http://cloudmade.com> is a provider of free map of the world using data
+  collected by L<OpenStreetMaps|http://www.openstreetmap.org> project.
+
   This module implements an OO wrapper around Cloudmade's Geo API.
-  For now the following features were implemented:
+
+  The following capabilities are implemented:
    - geocoding and geosearching
    - routing
    - obtaining tiles
 
-  Some of functionality providede by Cloudmade is not implemented yet in this module.
-  If you have any questions or/and suggestions please contact me.
+  Please note that some features of the HTTP API aren't wrapped yet by this module.
+  If you have any questions or/and suggestions feel free to drop me a mail or create a ticked in rt.cpan.org.
 
 =head1 SYNOPSIS
 
@@ -53,8 +56,8 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API (geocoding, routin
   print "Start: ", $route->start, "\n";
   print "End: ", $route->end, "\n";
 
-  print "Route segments:\n";
-  print join (',', @$_), "\n" foreach (@{$route->segments});
+  print "Route instructions:\n";
+  print join (',', @$_), "\n" foreach (@{$route->instructions});
 
   #get tile
   my $tile = $geo->get_tile([47.26117, 9.59882], {zoom=>10, tile_size=>256});
@@ -78,7 +81,7 @@ use constant DEBUG => 0;
 
 =head2 new API-KEY
 
- Usage		:   my $geo = Geo::Cloudmade->new('your-ip-key');
+ Usage		      :   my $geo = Geo::Cloudmade->new('your-ip-key');
  Function       :   Constructs and returns a new Geo::Cloudmade object
  Returns        :   a Geo::Cloudmade object
  API-KEY        :   api key provided by Cloudmade. For request api key please visit http://developers.cloudmade.com/projects>
@@ -169,19 +172,34 @@ sub find_closest {
   return bless  [ objs=>\@objs ], 'Geo::Cloudmade::Results'
 }
 
-=head2 get_route START END PARAMS
+=head2 get_route START_POINT END_POINT PARAMS
+  
+  Allowed parameters:
+     type => 'car' // 'foot' // 'bicycle'
+     method => 'shortest' // fastest' - only for route type 'car', default is 'shortest'
+     lang => iso 2 characters code for language for the route instructions, default is en.
+             Possible values are: de, en, es, fr, hu, it, nl, ro, ru, se, vi, zh.
+     units => (measure units for distance calculation) 'km' // 'miles' (default 'km')
 
-  Usage:   my $route = $geo->get_route([47.25976, 9.58423], [47.66117, 9.99882],
-           { type=>'car', method=>'shortest' } );
-  Function: Calculates route from START to END and returns Geo::Cloudmade::Route object
+  Usage:
+           my $route = $geo->get_route(
+                  [47.25976, 9.58423], [47.66117, 9.99882],
+                  { type=>'car', method=>'shortest' } );
 
+  Returns:   Geo::Cloudmade::Route object from server or undef if communication with server was unsuccessful.
+  Function:  Calculates route from START to END and returns Geo::Cloudmade::Route object
+  See also:  Cloudmade's documentation about API for routing.
+             http://developers.cloudmade.com/wiki/routing-http-api/Documentation
 =cut
 
 sub get_route {
   my ($self, $start, $end, $opt) = @_;
   my %params = ( type => 'car', method=>'shortest', lang=>'en', units=>'km', %$opt );
   my ($type, $method) = delete @params{qw/type method/};
-  my $content =  $self->call_service("api/0.3/".$start->[0].','.$start->[1].','.$end->[0].','.$end->[1]."/$type/$method.js", [%params], 'routes');
+  warn "Unexpected type $type" unless ($type eq 'car' or $type eq 'foot' or $type eq 'bicycle');
+
+  my $content =  $self->call_service("api/0.3/".$start->[0].','.$start->[1].','.$end->[0].','.$end->[1]. 
+                                    ($type eq 'car' ? "/$type/$method.js" : "/$type.js") , [%params], 'routes');
   return unless $content;
   my $ref = from_json($content, {utf8 => 1});
   return bless $ref, 'Geo::Cloudmade::Route';
@@ -217,10 +235,28 @@ sub get_tile {
 sub error { $_[0]->{error} }
 
 package Geo::Cloudmade::Route;
+=head1 Geo::Cloudmade::Route
+
+  Geo::Cloudmade::Route represents responce of routing request in decoded JSON.
+  More details available here http://developers.cloudmade.com/wiki/routing-http-api/Response_structure .
+
+  The following helper functions were added:
+    - total_distance - distance in meters. (Probably it should be in requested units, see parameters of get_route)
+    - start          - name of the start point of the route,
+    - end            - name of the end point of the route,
+    - valid          - returns 1 if status is 0 (OK)
+    - status_message - text description in case of error
+    - instructions   - array of detailed instructions, 
+                       see more details in http://developers.cloudmade.com/wiki/routing-http-api/Response_structure 
+
+=cut
+
 sub total_distance { $_[0]->{route_summary}{total_distance} } 
 sub start { $_[0]->{route_summary}{start_point} } 
 sub end { $_[0]->{route_summary}{end_point} } 
-sub segments { $_[0]->{route_instructions} }
+sub valid { $_[0]->{status} ? 0 : 1 }
+sub status_message { $_[0]->{status_message} }
+sub instructions { $_[0]->{route_instructions} }
 
 package Geo::Cloudmade::Results;
 sub objs { $_[0]->{objs} }

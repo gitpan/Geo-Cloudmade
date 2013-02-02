@@ -3,9 +3,8 @@
 
 #########################
 
-# change 'tests => 1' to 'tests => last_test_to_print';
-
 use Test;
+
 BEGIN { plan tests => 3 };
 use Geo::Cloudmade;
 
