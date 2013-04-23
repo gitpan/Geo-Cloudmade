@@ -1,7 +1,7 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 
 =head1 NAME
 
@@ -75,7 +75,7 @@ use JSON;
 use Math::Trig;
 
 use constant HOST => 'cloudmade.com';
-use constant DEBUG => 0;
+use constant DEBUG => $ENV{GEO_CLOUDMADE_DEBUG};
 
 =head1 CONSTRUCTOR
 
@@ -89,7 +89,12 @@ use constant DEBUG => 0;
 =cut
 sub new {
   my ($class, $key) = @_;
-  bless { key => $key, error => '' }, $class
+  bless {
+      key => $key,
+      ua => LWP::UserAgent->new( keep_alive => 2 ),
+      error => '',
+      http_status => 0,
+  }, $class
 }
 
 # internal method 
@@ -104,16 +109,17 @@ sub call_service {
     $uri->query_form($params);
 
     print "uri=", $uri->as_string, "\n" if DEBUG;
-    my $useragent = new LWP::UserAgent;
     my $request = new HTTP::Request(GET => $uri->as_string);
-    my $response = $useragent->request($request);
+    my $response = $self->{ua}->request($request);
 
+    $self->{http_status} = $response->code;
     if ($response->is_success) {
+        $self->{error} = '';
         return $response->content;
     }
     else {
         $self->{error} = "HTTP request error: ".$response->status_line."\n";
-        return ();
+        return undef;
     }
 }
 
@@ -233,6 +239,7 @@ sub get_tile {
 }
 
 sub error { $_[0]->{error} }
+sub http_status { $_[0]->{http_status} }
 
 package Geo::Cloudmade::Route;
 =head1 Geo::Cloudmade::Route
@@ -270,6 +277,7 @@ sub properties {
   @{$this->{properties}}{@names};
 }
 sub centroid {
+  return undef unless $_[0]->{centroid}{type} eq 'POINT';
   bless $_[0]->{centroid}{coordinates}, 'Geo::Cloudmade::Point'
 }
 package Geo::Cloudmade::Point;

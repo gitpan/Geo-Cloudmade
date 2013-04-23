@@ -8,5 +8,5 @@ WriteMakefile(
     PREREQ_PM         => { JSON => 2.0, LWP => 5.0}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Geo/Cloudmade.pm', # retrieve abstract from module
-       AUTHOR         => 'Dmytro Gorbunov <dmitro.gorbunov@gmail.com>') : ()),
+       AUTHOR         => ['Dmytro Gorbunov <dmitro.gorbunov@gmail.com>','Tim Bunce <Tim.Bunce@pobox.com>']) : ()),
 );
