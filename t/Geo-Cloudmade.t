@@ -8,7 +8,10 @@ use Test;
 BEGIN { plan tests => 3 };
 use Geo::Cloudmade;
 
-my $geo = Geo::Cloudmade->new('BC9A493B41014CAABB98F0471D759707');
+$ENV{CLOUDMADE_API_KEY} = '8ee2a50541944fb9bcedded5165f09d9' unless exists $ENV{CLOUDMADE_API_KEY};
+
+my $geo = Geo::Cloudmade->new( $ENV{CLOUDMADE_API_KEY} );
+
 ok (defined $geo);
 
 my ($res) = $geo->find("Potsdamer Platz,Berlin,Germany", {results=>5, skip=>0});

@@ -1,7 +1,7 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-our $VERSION = '0.7';
+our $VERSION = '0.8';
 
 =head1 NAME
 
@@ -9,8 +9,8 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API (geocoding, routin
 
 =head1 DESCRIPTION
   
-  L<Cloudmade|http://cloudmade.com> is a provider of free map of the world using data
-  collected by L<OpenStreetMaps|http://www.openstreetmap.org> project.
+  L<Cloudmade|http://cloudmade.com/> is a provider of free map of the world using data
+  collected by L<OpenStreetMaps|http://www.openstreetmap.org/> project.
 
   This module implements an OO wrapper around Cloudmade's Geo API.
 

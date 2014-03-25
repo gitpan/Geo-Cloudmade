@@ -28,3 +28,7 @@ Revision history for Perl module Geo::Cloudmade.
          Make the http status code available.
          Return undef, not empty list, on error.
          Return undef if centroid type is not POINT.
+
+0.8 2014-03-25
+       Fix tests by changing default API key.
+       Some minor improvements.

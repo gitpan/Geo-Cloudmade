@@ -9,7 +9,7 @@ use warnings;
 use Geo::Cloudmade ();
 use Test::More;
 
-$ENV{CLOUDMADE_API_KEY} = 'BC9A493B41014CAABB98F0471D759707' unless exists $ENV{CLOUDMADE_API_KEY};
+$ENV{CLOUDMADE_API_KEY} = '8ee2a50541944fb9bcedded5165f09d9' unless exists $ENV{CLOUDMADE_API_KEY};
 
 if ($ENV{CLOUDMADE_API_KEY}) {
     my $geo = Geo::Cloudmade->new($ENV{CLOUDMADE_API_KEY});
