@@ -9,9 +9,7 @@ use warnings;
 use Geo::Cloudmade ();
 use Test::More;
 
-$ENV{CLOUDMADE_API_KEY} = '8ee2a50541944fb9bcedded5165f09d9' unless exists $ENV{CLOUDMADE_API_KEY};
-
-if ($ENV{CLOUDMADE_API_KEY}) {
+if (exists $ENV{CLOUDMADE_API_KEY}) {
     my $geo = Geo::Cloudmade->new($ENV{CLOUDMADE_API_KEY});
     isa_ok $geo, 'Geo::Cloudmade';
     my $route;
@@ -26,6 +24,9 @@ if ($ENV{CLOUDMADE_API_KEY}) {
     if (exists $route->{status_message}) {
         unlike $route->{status_message}, qr/wrong route type/i, 'No error message';
     }
+}
+else { # no key - no tests
+  ok 1
 }
 
 done_testing;

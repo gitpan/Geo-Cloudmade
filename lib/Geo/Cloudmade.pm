@@ -1,7 +1,7 @@
 package Geo::Cloudmade;
 
 use 5.006000;
-our $VERSION = '0.8';
+our $VERSION = '0.9';
 
 =head1 NAME
 
@@ -9,18 +9,16 @@ Geo::Cloudmade - An extended interface to Cloudmade's Geo API (geocoding, routin
 
 =head1 DESCRIPTION
   
-  L<Cloudmade|http://cloudmade.com/> is a provider of free map of the world using data
-  collected by L<OpenStreetMaps|http://www.openstreetmap.org/> project.
+  Cloudmade ( http://cloudmade.com ) is a provider of services based on OSM (OpenStreetMaps) data.
+
+  Unfortunatelly only "enterprise" customers may use this API since 1st of May 2014.
 
   This module implements an OO wrapper around Cloudmade's Geo API.
 
-  The following capabilities are implemented:
+  The following capabilities were implemented:
    - geocoding and geosearching
    - routing
    - obtaining tiles
-
-  Please note that some features of the HTTP API aren't wrapped yet by this module.
-  If you have any questions or/and suggestions feel free to drop me a mail or create a ticked in rt.cpan.org.
 
 =head1 SYNOPSIS
 
@@ -292,11 +290,7 @@ sub long {
 
 =head1 SEE ALSO
 
- Official documentation about services from Cloudmade http://developers.cloudmade.com/projects
- You can find more specific info about:
-   - geocoding and geosearching in http://developers.cloudmade.com/projects/show/geocoding-http-api
-   - routing in http://developers.cloudmade.com/projects/show/routing-http-api
-   - obtaining tiles in http://developers.cloudmade.com/projects/tiles/documents
+ Official CloudMade's blog http://blog.cloudmade.com .
 
 =head1 AUTHOR
 
@@ -305,7 +299,7 @@ Dmytro Gorbunov, E<lt>dmitro.gorbunov@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2010 by Dmytro Gorbunov
+Copyright (C) 2015 by Dmytro Gorbunov
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.9 or,
